@@ -8,6 +8,7 @@ from ship import Ship
 from bullet import Bullet
 from alien import Alien
 from game_stats import GameStats
+from button import Button
 class AlienInvasion: 
     """Overall class to manage game assets and behavior"""
     def __init__(self): 
@@ -22,14 +23,19 @@ class AlienInvasion:
         pygame.display.set_caption("Alien invasion")
         
         self.stats = GameStats(self)
+
         self.ship = Ship(self)
         self.bullets = pygame.sprite.Group()
         self.aliens = pygame.sprite.Group()
 
         self._create_fleet()
+        
         self.bg_color = (230, 230, 230)
 
-        self.game_active = True
+        self.game_active = False
+
+        self.play_button = Button(self, "Play")
+
 
     def run_game(self): 
         """Start main loop of game""" 
@@ -41,8 +47,8 @@ class AlienInvasion:
                 self.bullets.update()
                 self._update_bullet()
                 self._update_aliens()
-                self._update_screen()
-                self.clock.tick(60)
+            self._update_screen()
+            self.clock.tick(60)
 
     def _check_events(self):
         """Respond to input"""
@@ -53,6 +59,14 @@ class AlienInvasion:
                 self._check_keydown_events(event)
             elif event.type == pygame.KEYUP:
                 self._check_keyup_events(event)
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_pos = pygame.mouse.get_pos()
+                self._check_play_button(mouse_pos)
+    
+    def _check_play_button(self, mouse_pos):
+        """Start game"""
+        if self.play_button.rect.collidepoint(mouse_pos):
+            self.game_active = True
 
     def _check_keydown_events(self, event):
         """Respond to keypress"""
@@ -170,6 +184,9 @@ class AlienInvasion:
             bullet.draw_bullet()
         self.ship.blitme()
         self.aliens.draw(self.screen)
+
+        if not self.game_active:
+            self.play_button.draw_button()
 
         pygame.display.flip()
     
